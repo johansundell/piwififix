@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"log"
 	"log/syslog"
@@ -8,6 +9,7 @@ import (
 	"os"
 	"os/exec"
 	"os/signal"
+	"strconv"
 	"syscall"
 	"time"
 )
@@ -22,7 +24,7 @@ func main() {
 		}
 	}
 
-	site := &Site{"http://192.168.22.131", UNCHECKED}
+	url := "http://192.168.22.131"
 
 	ticker := time.NewTicker(1 * time.Minute)
 	quit := make(chan struct{})
@@ -30,8 +32,7 @@ func main() {
 		for {
 			select {
 			case <-ticker.C:
-				s, err := site.Status()
-				if err != nil || s == DOWN {
+				if err := checkInternet(url); err != nil {
 					log.Println("Wifi Down")
 					card := "wlan0"
 					resp, err := restartWifi(card)
@@ -77,31 +78,14 @@ func restartWifi(card string) (string, error) {
 	return string(cmdOutput), nil
 }
 
-type Status int
-
-const (
-	UNCHECKED Status = iota
-	DOWN
-	UP
-)
-
-// The Site struct encapsulates the details about the site being monitored.
-type Site struct {
-	url         string
-	last_status Status
-}
-
-// Site.Status makes a GET request to a given URL and checks whether or not the
-// resulting status code is 200.
-func (s Site) Status() (Status, error) {
-	resp, err := http.Get(s.url)
-	status := s.last_status
-
-	if (err == nil) && (resp.StatusCode == 200) {
-		status = UP
-	} else {
-		status = DOWN
+func checkInternet(url string) error {
+	resp, err := http.Get(url)
+	if err != nil {
+		return err
 	}
 
-	return status, err
+	if resp.StatusCode != http.StatusOK {
+		return errors.New("Wrong status code " + strconv.Itoa(resp.StatusCode))
+	}
+	return nil
 }
