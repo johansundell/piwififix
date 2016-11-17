@@ -70,7 +70,7 @@ func restartWifi(card string) (string, error) {
 
 	// ifup --force wlan0
 	cmdName = "ifup"
-	cmdArgs = []string{"--force", "wlan0"}
+	cmdArgs = []string{"--force", card}
 	cmdOutput, err = exec.Command(cmdName, cmdArgs...).Output()
 	if err != nil {
 		return "", err
