@@ -18,7 +18,7 @@ func main() {
 	useSyslog := flag.Bool("syslog", false, "Use syslog")
 	flag.Parse()
 	if *useSyslog {
-		logwriter, e := syslog.New(syslog.LOG_NOTICE, "cocsniffer")
+		logwriter, e := syslog.New(syslog.LOG_NOTICE, "piwififixer")
 		if e == nil {
 			log.SetOutput(logwriter)
 		}
