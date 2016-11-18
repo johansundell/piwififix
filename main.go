@@ -18,6 +18,7 @@ func main() {
 	useSyslog := flag.Bool("syslog", false, "Use syslog")
 	url := flag.String("url", "http://192.168.22.131", "Url to use as check")
 	card := flag.String("card", "wlan0", "Network card to restart")
+	minutes := flag.Int("minutes", 1, "wait this many minutes between check")
 	flag.Parse()
 	if *useSyslog {
 		logwriter, e := syslog.New(syslog.LOG_NOTICE, "piwififixer")
@@ -25,9 +26,9 @@ func main() {
 			log.SetOutput(logwriter)
 		}
 	}
-	log.Println("syslog", *useSyslog, "url", *url, "card", *card)
+	log.Println("syslog", *useSyslog, "url", *url, "card", *card, "minutes", *minutes)
 
-	ticker := time.NewTicker(1 * time.Minute)
+	ticker := time.NewTicker(time.Duration(*minutes) * time.Minute)
 	quit := make(chan struct{})
 	go func() {
 		for {
