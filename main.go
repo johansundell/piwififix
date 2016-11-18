@@ -16,6 +16,8 @@ import (
 
 func main() {
 	useSyslog := flag.Bool("syslog", false, "Use syslog")
+	url := flag.String("url", "http://192.168.22.132", "Url to use as check")
+	card := flag.String("card", "wlan0", "Network card to restart")
 	flag.Parse()
 	if *useSyslog {
 		logwriter, e := syslog.New(syslog.LOG_NOTICE, "piwififixer")
@@ -23,8 +25,7 @@ func main() {
 			log.SetOutput(logwriter)
 		}
 	}
-
-	url := "http://192.168.22.131"
+	log.Println("syslog", *useSyslog, "url", *url, "card", *card)
 
 	ticker := time.NewTicker(1 * time.Minute)
 	quit := make(chan struct{})
@@ -32,14 +33,14 @@ func main() {
 		for {
 			select {
 			case <-ticker.C:
-				if err := checkInternet(url); err != nil {
+				if err := checkInternet(*url); err != nil {
 					log.Println("Wifi Down")
-					card := "wlan0"
-					resp, err := restartWifi(card)
+
+					resp, err := restartWifi(*card)
 					if err != nil {
 						log.Println("Failed restart wifi", err)
 					} else {
-						log.Println("Restarted Wifi", card, resp)
+						log.Println("Restarted Wifi", *card, resp)
 					}
 				}
 			case <-quit:
