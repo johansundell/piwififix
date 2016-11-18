@@ -16,7 +16,7 @@ import (
 
 func main() {
 	useSyslog := flag.Bool("syslog", false, "Use syslog")
-	url := flag.String("url", "http://192.168.22.132", "Url to use as check")
+	url := flag.String("url", "http://192.168.22.131", "Url to use as check")
 	card := flag.String("card", "wlan0", "Network card to restart")
 	flag.Parse()
 	if *useSyslog {
